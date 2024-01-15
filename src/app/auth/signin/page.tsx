@@ -11,8 +11,6 @@ export default function Signin() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      console.log("No JWT");
-      console.log(status);
       void signIn("stackup", { callbackUrl: callbackUrl });
     }
   }, [status, callbackUrl]);

@@ -1,5 +1,6 @@
 import Stackup from "@/lib/auth/providers/stackup";
 import type { NextAuthOptions } from "next-auth";
+import { redirect } from "next/navigation";
 
 export const options: NextAuthOptions = {
   providers: [
@@ -11,18 +12,28 @@ export const options: NextAuthOptions = {
   ],
   pages: {
     signIn: "/auth/signin",
+    signOut: "auth/signout",
   },
   callbacks: {
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      else {
+        const origin = new URL(url).origin;
+        if (origin === baseUrl || origin == process.env.STACKUP_HOST)
+          return url;
+      }
+
+      return baseUrl;
+    },
     async jwt({ token, account, profile }) {
-      // Persist the OAuth access_token and or the user id to the token right after signin
       if (account) {
-        console.log("token");
-        console.log(token);
-        console.log("account");
-        console.log(account);
-        token.accessToken = account.access_token;
+        token.idToken = account.id_token;
       }
       return token;
+    },
+    async session({ session, token, user }) {
+      session.idToken = token?.idToken;
+      return session;
     },
   },
 };

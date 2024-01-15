@@ -1,11 +1,19 @@
+import { request } from "http";
 import { withAuth } from "next-auth/middleware";
 
-export default withAuth({
-  // Matches the pages config in `[...nextauth]`
-  pages: {
-    signIn: "/auth/signin",
-  },
-});
+export default withAuth(
+  // `withAuth` augments your `Request` with the user's token.
+  function middleware(req) {},
+  {
+    pages: {
+      signIn: "/auth/signin",
+    },
+    callbacks: {
+      authorized: ({ token, req }) =>
+        token != null || req.cookies.get("sso") == null,
+    },
+  }
+);
 
 export const config = {
   matcher: [
