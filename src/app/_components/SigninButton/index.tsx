@@ -8,7 +8,7 @@ export default function SigninButton() {
   const [callbackUrl, setCallbackUrl] = useState("/");
   useEffect(() => {
     setCallbackUrl(window.location.href);
-  });
+  }, []);
   return (
     <Button
       onClick={() =>

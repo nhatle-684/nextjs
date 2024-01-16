@@ -1,6 +1,6 @@
 import Stackup from "@/lib/auth/providers/stackup";
 import type { NextAuthOptions } from "next-auth";
-import { redirect } from "next/navigation";
+import { jwtDecode } from "jwt-decode";
 
 export const options: NextAuthOptions = {
   providers: [
@@ -12,7 +12,6 @@ export const options: NextAuthOptions = {
   ],
   pages: {
     signIn: "/auth/signin",
-    signOut: "auth/signout",
   },
   callbacks: {
     async redirect({ url, baseUrl }) {
@@ -32,7 +31,11 @@ export const options: NextAuthOptions = {
       return token;
     },
     async session({ session, token, user }) {
-      session.idToken = token?.idToken;
+      if (token?.idToken) {
+        session.idToken = token.idToken;
+        session.sid = jwtDecode<{ sid: string }>(token.idToken).sid;
+      }
+
       return session;
     },
   },
