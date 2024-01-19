@@ -20,7 +20,11 @@ export default function Stackup(
     name: "Stackup",
     type: "oauth",
     authorization: {
-      params: { response_mode: "query", scope: "openid email profile" },
+      params: {
+        response_mode: "query",
+        scope: "openid email profile offline_access",
+        prompt: "consent",
+      },
     },
     idToken: true,
     checks: ["pkce", "state"],

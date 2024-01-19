@@ -7,6 +7,7 @@ declare module "next-auth" {
   interface Session {
     idToken?: string;
     sid?: string;
+    error?: "RefreshAccessTokenError";
   }
 }
 
@@ -15,5 +16,9 @@ declare module "next-auth/jwt" {
   interface JWT {
     /** OpenID ID Token */
     idToken?: string;
+    accessToken?: string;
+    expiresAt?: number;
+    refreshToken?: string;
+    error?: "RefreshAccessTokenError";
   }
 }
