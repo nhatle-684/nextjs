@@ -29,14 +29,13 @@ export const options: NextAuthOptions = {
     async jwt({ token, account, profile }) {
       // Initial sign in
       if (account && profile) {
-        console.log("account: ", account);
-        console.log("token: ", token);
         return {
           ...token,
           idToken: account.id_token,
           accessToken: account.access_token,
           expiresAt: account.expires_at,
           refreshToken: account.refresh_token,
+          session_state: account.session_state,
         };
       }
 
@@ -45,12 +44,12 @@ export const options: NextAuthOptions = {
       }
 
       var rs = await refreshAccessToken(token);
-      console.log("refresh token rs: ", rs);
       return rs;
     },
     async session({ session, token, user }) {
       if (token?.idToken) {
         session.idToken = token.idToken;
+        session.session_state = token.session_state;
         session.sid = jwtDecode<{ sid: string }>(token.idToken).sid;
       }
       session.error = token.error;
@@ -60,7 +59,6 @@ export const options: NextAuthOptions = {
 };
 
 async function refreshAccessToken(token: JWT): Promise<JWT> {
-  console.log("refreshAccessToken", token);
   if (!token.expires_at || !token.refreshToken) {
     return token;
   }

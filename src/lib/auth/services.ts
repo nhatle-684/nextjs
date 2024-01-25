@@ -14,6 +14,7 @@ export interface OpenidConfig {
   authorization_endpoint: string;
   registration_endpoint: string;
   end_session_endpoint: string;
+  check_session_iframe: string;
   frontchannel_logout_supported: boolean;
   frontchannel_logout_session_supported: boolean;
   userinfo_endpoint: string;
@@ -34,7 +35,7 @@ export interface OpenidConfig {
 
 export const getOidcConfig = async () => {
   const res = await fetch(
-    `${process.env.STACKUP_HOST}/.well-known/openid-configuration`
+    `${process.env.NEXT_PUBLIC_STACKUP_HOST}/.well-known/openid-configuration`
   );
   return (await res.json()) as OpenidConfig;
 };
@@ -46,7 +47,7 @@ export const oidcSignout = async (end_session_endpoint?: string) => {
     const session = await getSession();
     logout_url.searchParams.set(
       "post_logout_redirect_uri",
-      window.location.href
+      window.location.origin
     );
     if (session?.idToken) {
       logout_url.searchParams.set("id_token_hint", session?.idToken);
