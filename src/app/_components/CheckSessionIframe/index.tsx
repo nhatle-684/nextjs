@@ -31,7 +31,7 @@ function receiveMessage(
 
 export default function Component({ onChanged }: { onChanged: Function }) {
   const { data: session, status } = useSession();
-  const opFrameId = "op";
+  const opFrameId = Date.now().toString();
   const [checkSessionIframe, setCheckSessionIframe] = useState("");
 
   useEffect(() => {
@@ -42,21 +42,23 @@ export default function Component({ onChanged }: { onChanged: Function }) {
 
   useEffect(() => {
     if (status === "authenticated" && checkSessionIframe) {
-      const session_polling = setInterval(() => {
-        var message =
-          process.env.NEXT_PUBLIC_STACKUP_ID + " " + session?.session_state;
+      const message =
+        process.env.NEXT_PUBLIC_STACKUP_ID + " " + session?.session_state;
+
+      const handleMessage = (event: MessageEvent) =>
+        receiveMessage(event, sessionPolling, onChanged);
+      const sessionPolling = setInterval(() => {
         check_session(opFrameId, message, process.env.NEXT_PUBLIC_STACKUP_HOST);
       }, 5000);
 
-      window.addEventListener(
-        "message",
-        (event) => receiveMessage(event, session_polling, onChanged),
-        false
-      );
+      window.addEventListener("message", handleMessage, false);
 
-      return () => clearInterval(session_polling);
+      return () => {
+        window.removeEventListener("message", handleMessage);
+        clearInterval(sessionPolling);
+      };
     }
-  }, [status, checkSessionIframe, session, onChanged]);
+  }, [opFrameId, status, checkSessionIframe, session, onChanged]);
 
   if (status !== "authenticated") {
     return null;
